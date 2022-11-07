@@ -1,4 +1,4 @@
-module rs_ff(clk, r,s,q,nq);
+module sr_ff(clk, r,s,q,nq);
 input clk;
 input r, s;
 output reg q, nq;
@@ -20,4 +20,4 @@ begin
     end
     nq<= ~q;
 end
-endmodule // rs_ff
+endmodule // sr_ff

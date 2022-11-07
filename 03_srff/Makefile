@@ -1,5 +1,5 @@
-NAME=rs_ff
-OUT=rs
+NAME=sr_ff
+OUT=sr
 
 inspect: test.vcd
 	gtkwave test.vcd
