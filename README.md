@@ -10,4 +10,5 @@ Steps:
       - Decode logic
   2. Real board: configure `Olimexino` board for flashing 
 
-
+## Verilog tutorials
+  1. Set-Reset Flip-Flop ![SR FF gif](./04_srff_lat/srff.gif)
