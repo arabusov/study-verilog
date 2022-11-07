@@ -8,14 +8,20 @@ begin
     $monitor("time=%g R=%b S=%b Q=%b NQ=%b", $time, R, S, Q, Nq);
 end
 
-top dut(.CLK(Clk),.BUT2(R),.BUT1(S),.LED1(Q),.LED2(Nq));
+sr_ff_lat des(
+    .CLK(Clk),
+    .RESET(R),
+    .SET(S),
+    .Q(Q),
+    .QN(Nq)
+);
 
 always #1 Clk=~Clk;
 
 initial
 begin
     $dumpfile("test.vcd");
-    $dumpvars(0, top);
+    $dumpvars(0, sr_ff_lat_tb);
     Clk=1'b0;
     R=1'b0; S=1'b0;
     #5 R=1'b1; S=1'b0;
