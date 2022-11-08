@@ -30,7 +30,7 @@ flash: top.bin
 	sudo iceprogduino $<
 
 clean:
-	rm -f top.blif top.asc top.bin
+	rm -f top.blif top.asc top.bin top.rpt
 	rm -f test.vcd
 	rm -f $(OUT)
 
