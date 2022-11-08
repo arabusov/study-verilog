@@ -9,7 +9,7 @@ module d_ff(
 wire x, y;
 wire a;
 
-nand u0(a, clk, enable);
+and u0(a, clk, enable);
 nand u1(x, a, d);
 nand u2(y, a, x);
 nand u3(q, x, qbar);
