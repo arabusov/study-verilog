@@ -76,11 +76,19 @@ module be8(
                 case (instr[2:0])
                     0: begin
                         {carry, a} <= {cout, alu_out};
-                        state <= 0;
+                        instr <= data; // fetch next instruction immediately
+                        state <= 1;
+                        pc <= pc + 1;
                     end
                     1: begin
                         b <= a;
                         a <= b;
+                        instr <= data; // fetch next instruction immediately
+                        state <= 1;
+                        pc <= pc + 1;
+                    end
+                    4: begin            // make absolute jump
+                        pc <= data;
                         state <= 0;
                     end
                     default: begin
@@ -91,10 +99,9 @@ module be8(
             end
             2: begin
                 pc <= pc + 1;
-                case (instr[2:0])
+                case (instr[1:0])
                     2: begin a <= data; state <= 0; end
                     3: begin rw <= 1; state <= 3; end
-                    default: begin pc <= data; state <=0; end
                 endcase
             end
             3: begin
