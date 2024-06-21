@@ -46,31 +46,19 @@ module be8(
         .a(a), .b(b), .cin(carry), .cout(cout), .out(alu_out));
     addr_mux am(.state(state), .ar(ar), .pc(pc), .addr(addr));
 
-    always @rst begin
-        if (rst) begin
-            assign state = 0;
-            assign instr = 0;
-            assign pc = 8'hf0;
-            assign ar = pc;
-            assign rw = 0;
-            assign a = 0;
-            assign b = 0;
-            assign carry = 0;
-        end else begin
-            deassign state;
-            deassign instr;
-            deassign pc;
-            deassign ar;
-            deassign rw;
-            deassign a;
-            deassign b;
-            deassign carry;
-        end
-    end
     assign data = ( (rw == 1) ? a : { 8{1'bz} } ); 
 
-    always @(negedge clk & ready &~rst) begin
-        case (state)
+    always @(posedge clk) begin
+        if (rst) begin
+            state <= 0;
+            instr <= 0;
+            pc <= 8'hf0;
+            ar <= pc;
+            rw <= 0;
+            a <= 0;
+            b <= 0;
+            carry <= 0;
+        end else case (state)
             0: begin instr <= data; state <= 1; pc <= pc + 1; end
             1: begin
                 case (instr[2:0])
@@ -116,56 +104,16 @@ module be8(
     end
 endmodule
 
-module ram8x256(d, a, we, clk);
+module ram8x16(d, a, we, clk);
     inout [7:0] d;
     input [7:0] a;
     input we;
     input clk;
 
-    reg [7:0] mem [0:255];
+    reg [7:0] mem [0:16];
 
-    assign d = ( we ? 8'bzzzzzzzz : mem[a] );
-    always @(negedge clk)
+    assign d = ( we ? 8'bzzzzzzzz : mem[a[3:0]] );
+    always @(posedge clk)
         if (we)
-            mem[a] <= d;
-endmodule
-
-module main;
-
-reg clk, rst;
-wire [7:0] data;
-wire [7:0] addr;
-reg ready;
-wire rw;
-
-be8 proc(.clk(clk), .rst(rst),
-    .data(data), .addr(addr), .ready(ready),
-    .rw(rw));
-ram8x256 mem(.d(data), .a(addr), .we(rw), .clk(clk));
-initial $readmemh("mem.txt", mem.mem, 8'hf0, 8'hff);
-
-integer i;
-always #1 clk = !clk;
-initial begin
-    $dumpfile("show_be8_tb.vcd");
-    $dumpvars(0, clk);
-    $dumpvars(0, rst);
-    $dumpvars(0, proc);
-    $dumpvars(0, mem);
-    $dumpvars(0, mem.mem[8'hfe]);
-    $display("your program:");
-    for (i = 8'hf0; i <= 8'hff; i++) begin
-        $display(mem.mem[i]);
-    end
-    clk = 0;
-    rst = 1;
-    ready = 1;
-    #1;
-    rst = 0;
-    while (addr < 8'hff && ~proc.carry) begin
-        #1;
-    end
-    $finish ;
-end
-
+            mem[a[3:0]] <= d;
 endmodule
