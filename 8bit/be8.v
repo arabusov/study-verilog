@@ -91,21 +91,26 @@ module be8(
                         pc <= data;
                         state <= 0;
                     end
-                    default: begin
+                    3: begin            // Store A
+                        ar <= data;
+                        rw <= 1;
+                        state <= 3;
+                        pc <= pc + 1;
+                    end
+                    2: begin            // Load A
                         ar <= data;
                         state <= 2;
+                        pc <= pc + 1;
                     end
                 endcase
             end
-            2: begin
-                pc <= pc + 1;
-                case (instr[1:0])
-                    2: begin a <= data; state <= 0; end
-                    3: begin rw <= 1; state <= 3; end
-                endcase
+            2: begin        // Seems to be a typical von Neumann bottleneck
+                a <= data;
+                state <= 0;
             end
-            3: begin
-                rw <= 0; state <= 0;
+            3: begin        // for both read and write
+                rw <= 0;
+                state <= 0;
             end
         endcase
     end
@@ -147,6 +152,7 @@ initial begin
     $dumpvars(0, rst);
     $dumpvars(0, proc);
     $dumpvars(0, mem);
+    $dumpvars(0, mem.mem[8'hfe]);
     $display("your program:");
     for (i = 8'hf0; i <= 8'hff; i++) begin
         $display(mem.mem[i]);
