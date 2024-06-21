@@ -67,7 +67,7 @@ module be8(
             deassign carry;
         end
     end
-    assign data = ( (rw == 1) ? a : 8'bzzzzzzzz ); 
+    assign data = ( (rw == 1) ? a : { 8{1'bz} } ); 
 
     always @(negedge clk & ready &~rst) begin
         case (state)

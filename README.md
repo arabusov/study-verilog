@@ -14,3 +14,4 @@ Steps:
   1. Set-Reset Flip-Flop
 
   ![SR FF gif](./04_srff_lat/srff.gif)
+  ![Fibonacci](./8bit/fib.png)
