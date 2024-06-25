@@ -48,6 +48,8 @@ module u13(
 
     task reset;
         begin
+            a <= 0;
+            b <= 0;
             rw <= 0;
             addr <= RST_ADDR;
             pc <= RST_ADDR;
