@@ -25,10 +25,12 @@ module u13(
 
     parameter MSBEXE = 4;
     reg [MSBEXE:0] alu_exe;
-    reg [3:0] state;
-    parameter FETCH_STATE = 0;
-    parameter DECODE_STATE = 1;
-    parameter ZP_STATE = 2;
+    reg [2:0] state;
+    parameter FETCH_STATE   = 0;
+    parameter DECODE_STATE  = 1;
+    parameter ZP_STATE      = 2;
+    parameter ABS1_STATE    = 3;
+    parameter ABS2_STATE    = 4;
 
     always @(posedge clk) begin
         if (rst)
@@ -38,6 +40,8 @@ module u13(
                 FETCH_STATE: fetch;
                 DECODE_STATE: decode;
                 ZP_STATE: zp;
+                ABS1_STATE: abs1_t;
+                ABS2_STATE: abs2_t;
             endcase
         end
     end
@@ -49,7 +53,6 @@ module u13(
     task reset;
         begin
             a <= 0;
-            b <= 0;
             rw <= 0;
             addr <= RST_ADDR;
             pc <= RST_ADDR;
@@ -60,16 +63,24 @@ module u13(
 
     task fetch;
         begin
-            pc <= pc + 1;
-            addr <= pc + 1;
+            advance;
             instr <= data;
             state <= DECODE_STATE;
         end
     endtask
 
+    task advance;
+        begin
+            pc <= pc + 1;
+            addr <= pc + 1;
+        end
+    endtask
+
     wire [3:0] ih, il;
     assign {ih, il} = instr;
+
     parameter NOP   = 8'hea;
+    parameter JMP   = 8'h6c;
 
     // Main instructions
     parameter ADC   = 4'h6;
@@ -80,17 +91,18 @@ module u13(
     parameter IMMED = 4'h9;
     parameter ZP    = 4'h5;
 
-    reg [7:0] a, b;
+    reg [7:0] a;
     reg carry;
+    reg [7:0] addr_lo;
     wire cout;
     wire [7:0] c;
 
-    alu i_alu(.exe(alu_exe), .a(a), .b(b), .c(c), .cin(carry), .cout(cout));
+    alu i_alu(.exe(alu_exe), .a(a), .b(data), .c(c), .cin(carry), .cout(cout));
 
     task decode;
         begin
-            if (instr == NOP)
-                fetch;
+            if (instr == NOP) fetch;
+            else if (instr == JMP) abs1_t;
             else begin
                 case (il)
                     ZP: begin
@@ -122,10 +134,23 @@ module u13(
         endcase
     endtask
 
+    task abs1_t;
+        begin
+            addr_lo <= data;
+            state <= ABS2_STATE;
+            advance;
+        end
+    endtask
+
+    task abs2_t;
+        jmp_t;
+    endtask
+            
     task lda_t;
         begin
             a <= data;
             state <= FETCH_STATE;
+            advance;
         end
     endtask
 
@@ -135,14 +160,22 @@ module u13(
         begin
             rw <= 0;
             state <= FETCH_STATE;
+            advance;
         end
     endtask
 
     task alu_t;
         begin
-            b <= data;
             {carry, a} <= {cout, c};
             fetch;
+        end
+    endtask
+
+    task jmp_t;
+        begin
+            pc <= { data, addr_lo };
+            addr <= { data, addr_lo };
+            state <= FETCH_STATE;
         end
     endtask
 endmodule

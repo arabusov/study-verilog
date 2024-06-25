@@ -4,11 +4,13 @@ module ram8x16(d, a, we, clk);
     input we;
     input clk;
 
+    wire [7:0] out;
+
     reg [7:0] mem [0:15];
     reg [7:0] zp [0:15];
 
-    assign out = a < 16'h100 ? zp[a[3:0]] : mem[a[3:0]];
-    assign d = ( we ? 16'bzzzzzzzzzzzzzzzz : mem[a[3:0]] );
+    assign out = (a < 16'h100 ? zp[a[3:0]] : mem[a[3:0]] );
+    assign d = ( we ? 16'bzzzzzzzzzzzzzzzz : out );
     always @(posedge clk)
         if (we)
             if (a < 16'h100)
@@ -20,6 +22,7 @@ endmodule
 module u13_tb;
 
 reg clk, rst;
+reg
 wire [7:0] data;
 wire [15:0] addr;
 wire rw;
@@ -38,7 +41,7 @@ initial begin
     $dumpvars(0, rst);
     $dumpvars(0, proc);
     $dumpvars(0, mem);
-    $dumpvars(0, mem.mem[4'he]);
+    $dumpvars(0, mem.zp[4'h0]);
     $display("your program:");
     for (i = 4'h0; i <= 4'hf; i++) begin
         $display(mem.mem[i]);
