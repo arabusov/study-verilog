@@ -22,7 +22,7 @@ endmodule
 module u13_tb;
 
 reg clk, rst;
-reg
+reg cnt;
 wire [7:0] data;
 wire [15:0] addr;
 wire rw;
@@ -48,11 +48,14 @@ initial begin
     end
     clk = 0;
     rst = 1;
+    cnt = 0;
     #5;
     rst = 0;
-    while (addr < 16'hfffe && ~proc.carry) begin
+    while (addr < 16'hfffe && ~proc.carry && cnt < 200) begin
+        cnt = cnt + 1;
         #1;
     end
+    $display(mem.zp[0], proc.a);
     $finish ;
 end
 
