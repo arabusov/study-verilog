@@ -64,24 +64,29 @@ rf_m rf_i(
     ,   .rd2(rd2)
     ,   .wd3(wd3)
     );
-initial begin
-    $dumpfile("test.vcd");
-    $dumpvars(0, rf_i);
-    $monitor("clk = %b ARST = %b SRST = %b WE3 = %b", clk, arst, srst, we3);
-    clk = 0;
-    arst = 1;
-    srst = 1;
-    we3 = 0;
-    a1  = 1;
-    a2  = 2;
-    a3  = 3;
-    wd3 = 32'hcafebabe;
-    #4 arst = 0; srst = 0; 
-    #4 we3 = 1;
-    #4 we3 = 0;
-    #4 a1 = 3; a2 = 1; a3 = 2;
-    #2 $finish;
-end
+    integer i;
+    initial begin
+        $dumpfile("test.vcd");
+        $dumpvars(0, rf_i);
+        $monitor("clk = %b ARST = %b WE3 = %b WD3 = %x", clk, arst, srst, we3, wd3);
+        clk = 0;
+        arst = 1;
+        srst = 1;
+        we3 = 0;
+        wd3 = 32'hcafebabe;
+        a1 <= 0;
+        a2 <= 0;
+        a3 <= 0;
+        #4 arst = 0; srst = 0;
+        #4 we3 = 1;
+        for (i = 0; i <= 32; i++) begin
+            a3 <= i;
+            #2 we3 <= 0; a1 <= a3;
+            #2 a1 <= a2; a2 <= a3; wd3++; we3 <= 1;
+        end
+        #4 a1 = 3; a2 = 1; a3 = 2;
+        #2 $finish;
+    end
 
-always #1 clk = ~clk;
+    always #1 clk = ~clk;
 endmodule
