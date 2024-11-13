@@ -2,7 +2,7 @@ module rf_m
 #(
         parameter   NREG    = 32
     ,   parameter   MSB     = 4
-    ,   parameter   REGW    = 32
+    ,   parameter   XLEN    = 32
     ,   parameter   ZERO    = 32'b0
     ,   parameter   RSTVAL  = ZERO
     ,   parameter   HIMP    = {32{1'bz}}
@@ -15,12 +15,12 @@ module rf_m
     ,   input [MSB:0] a1
     ,   input [MSB:0] a2
     ,   input [MSB:0] a3
-    ,   input [(REGW-1):0]  wd3
-    ,   output [(REGW-1):0] rd1
-    ,   output [(REGW-1):0] rd2
+    ,   input [(XLEN-1):0]  wd3
+    ,   output [(XLEN-1):0] rd1
+    ,   output [(XLEN-1):0] rd2
 );
 
-reg [(REGW-1):0] regs[0:(NREG-2)];
+reg [(XLEN-1):0] regs[0:(NREG-2)];
 
 assign rd1 = (a1 >= 1) ? regs[a1-1] : ZERO;
 assign rd2 = (a2 >= 1) ? regs[a2-1] : ZERO;
@@ -45,12 +45,12 @@ endmodule
 module rf_tb
 #(
         parameter   MSB     = 4
-    ,   parameter   REGW    = 32
+    ,   parameter   XLEN    = 32
 );
 reg clk, srst, arst, we3;
 reg [MSB:0] a1, a2, a3;
-reg [(REGW-1):0] wd3;
-wire [(REGW-1):0] rd1, rd2;
+reg [(XLEN-1):0] wd3;
+wire [(XLEN-1):0] rd1, rd2;
 
 rf_m rf_i(
         .clk(clk)
